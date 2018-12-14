@@ -1,7 +1,6 @@
-# 1. import Flask
+
 from flask import Flask, jsonify
 
-# 2. Create an app
 app = Flask(__name__)
 
 
@@ -12,33 +11,16 @@ from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func
 import datetime as dt
 
-#################################################
-# Database Setup
-#################################################
 engine = create_engine("sqlite:///Resources/hawaii.sqlite")
 
-# reflect an existing database into a new model
 Base = automap_base()
-
-# reflect the tables
 Base.prepare(engine, reflect=True)
-
-# Save reference to the table
 Measurement = Base.classes.measurement
 Station = Base.classes.station
 
-# Create our session (link) from Python to the DB
 session = Session(engine)
 
-#################################################
-# Flask Setup
-#################################################
 app = Flask(__name__)
-
-
-#################################################
-# Flask Routes
-#################################################
 
 @app.route("/")
 def welcome():
@@ -57,7 +39,6 @@ def welcome():
 def precipitation():
     results = session.query(Measurement).all()
 
-    # Create a dictionary from the row data and append to a list of all_precipitations
     all_precipitations = []
     for p in results:
         precipitation_dict = {}
@@ -69,10 +50,9 @@ def precipitation():
 
 @app.route("/api/v1.0/stations")
 def stations():
-    # query all stations
-    results = session.query(Measurement.station).all()
     
-     # Convert list of tuples into normal list
+    results = session.query(Measurement.station).all()
+ 
     all_stations = list(np.ravel(results))
     
     return jsonify(all_stations)
@@ -90,8 +70,6 @@ def calc_temps(start_date):
     
     result=session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
         filter(Measurement.date >= start_date).all()
-
-    # Convert the query results to a Dictionary using date as the key and tobs as the value.
     tobs=[]
     for row in result:
         tobs_dict = {}
@@ -108,8 +86,8 @@ def calc_temps_dates(start_date, end_date):
     result=session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
         filter(Measurement.date >= start_date).\
         filter(Measurement.date <= end_date).all()
-    
-    # Convert the query results to a Dictionary using date as the key and tobs as the value.
+
+   
     tobs=[]
     for row in result:
         tobs_dict = {}
